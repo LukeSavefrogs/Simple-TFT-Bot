@@ -2,6 +2,21 @@ import pyautogui
 import time
 import sys
 
+
+
+class LeagueOfLegends(object):
+    @staticmethod
+    def click(coordinates=None, button="left"):
+        """ Forces a click inside the client
+        """
+        pyautogui.moveTo(coordinates, duration=1.0, tween=pyautogui.easeOutQuad)
+        pyautogui.sleep(0.5)
+        pyautogui.mouseDown(button=button)
+        pyautogui.sleep(0.2)
+        pyautogui.mouseUp(button=button)
+
+
+
 def test():  
     print("\nControllo se sei dentro un gruppo: ")
 
@@ -13,7 +28,7 @@ def test():
         time.sleep(2)
 
 
-    if not pyautogui.locateOnScreen("models/Pulsante_InGame_LockShop.png", confidence=0.9):
+    if not pyautogui.locateOnScreen("models/Pulsante_InGame_Players.png", confidence=0.9):
         print("Non sei in game")
 
         print("\nCerco pulsante 'Gioca'")
@@ -49,46 +64,55 @@ def test():
 
 
 
+        while pyautogui.locateCenterOnScreen("models/Pulsante_GruppoUscita.png", confidence=0.8):
+            print("\nCerco pulsante 'Trova Partita'")
+            trova_partita = pyautogui.locateCenterOnScreen("models/Pulsante_TrovaPartita.png", confidence=0.6)
+            if trova_partita:
+                print("Trovato. Lo clicco")
+                pyautogui.click(trova_partita, duration=1, tween=pyautogui.easeOutQuad)
 
-        print("\nCerco pulsante 'Trova Partita'")
-        trova_partita = pyautogui.locateCenterOnScreen("models/Pulsante_TrovaPartita.png", confidence=0.6)
-        if trova_partita:
-            print("Trovato. Lo clicco")
-            pyautogui.click(trova_partita, duration=1, tween=pyautogui.easeOutQuad)
 
 
+            # Aspetta fino a che non trova una partita
+            print()
+            while not pyautogui.locateCenterOnScreen("models/Pulsante_AccettaON.png", confidence=0.8):
+                print("Ricerca partita in corso...")
+                time.sleep(0.5)
 
-        # Aspetta fino a che non trova una partita
-        print()
-        while not pyautogui.locateCenterOnScreen("models/Pulsante_Accetta.png", confidence=0.8):
-            print("Ricerca partita in corso...")
+
+            print("Partita Trovata!")
+
+            pulsante_accetta = pyautogui.locateCenterOnScreen("models/Pulsante_AccettaON.png", confidence=0.8)
+            pyautogui.click(pulsante_accetta, duration=1, tween=pyautogui.easeOutQuad)
+            print("Partita Accettata!")
+
             time.sleep(0.5)
 
 
-        print("Partita Trovata!")
+            # Controllo che non sia stata rifiutata
+            # Aspetta fino a che non trova una partita
+            print()
+            while pyautogui.locateCenterOnScreen("models/Pulsante_AccettaOFF.png", confidence=0.8):
+                print("Aspetto che tutti gli altri giocatori accettino...")
+                time.sleep(0.5)
 
-        pulsante_accetta = pyautogui.locateCenterOnScreen("models/Pulsante_Accetta.png", confidence=0.9)
-        pyautogui.click(pulsante_accetta, duration=1, tween=pyautogui.easeOutQuad)
+            if not pyautogui.locateCenterOnScreen("models/Pulsante_GruppoUscita.png", confidence=0.8):
+                print("Aperta schermata di caricamento")
+                break
 
+            print("Un giocatore non ha accettato. Sei stato rimesso in coda")
 
-    # input("Press when started...")
-
-    print()
-    # Controllo finchè non entro in partita
-    while not pyautogui.locateOnScreen("models/Pulsante_InGame_LockShop.png", confidence=0.9):
-        print("Caricamento partita in corso...")
-        time.sleep(1)
+        print()
+        # Controllo finchè non entro in partita
+        # while not pyautogui.locateOnScreen("models/Pulsante_InGame_LockShop.png", confidence=0.9):
+        while not pyautogui.locateOnScreen("models/Pulsante_InGame_Players.png", confidence=0.9):
+            print("Caricamento partita in corso...")
+            time.sleep(1)
 
 
     # Ogni 2 minuti cerco di arrendermi
     while True:
-        # LeagueOfLegends.click()
-        # pyautogui.press("esc")
-        # pyautogui.keyDown("esc")
-        # time.sleep(0.2)
-        # pyautogui.keyUp("esc")
-
-        pulsante_impostazioni = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Impostazioni.png", confidence=0.9)
+        pulsante_impostazioni = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Impostazioni.png", confidence=0.8)
         LeagueOfLegends.click(pulsante_impostazioni)
 
         while not pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Annulla.png", confidence=0.9): 
@@ -102,13 +126,16 @@ def test():
 
         if can_surrend: 
             LeagueOfLegends.click(can_surrend)
+            pyautogui.screenshot('Surrend_Round.png')
 
             while not pyautogui.locateCenterOnScreen("models/Dialog_IngameSurrend.png", confidence=0.9): 
                 print("In attesa del menu di arresa")
                 time.sleep(0.1)
 
+
             print("Mi arrendo!")
             LeagueOfLegends.click(pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Resa_Conferma.png", confidence=0.9))
+            print("Arreso!")
 
             break
 
@@ -119,11 +146,12 @@ def test():
         print("Aspetto 60 secondi...")
         time.sleep(60)
     
-
-    # Clicco su OK quando ricevo missioni
-    while pyautogui.locateCenterOnScreen("models/FinePartita_MissioneCompletata.png", confidence=0.9):
+    time.sleep(10)
+    
+    # Clicco su OK quando ricevo missioni (se le trovo)
+    while pyautogui.locateCenterOnScreen("models/FinePartita_MissioneCompletata.png", confidence=0.8):
         print("Hai appena portato a termine una missione!")
-        mission_finished = pyautogui.locateCenterOnScreen("models/FinePartita_MissioneCompletata.png", confidence=0.9)
+        mission_finished = pyautogui.locateCenterOnScreen("models/FinePartita_MissioneCompletata.png", confidence=0.8)
         LeagueOfLegends.click(mission_finished)
         time.sleep(2)
 
@@ -132,26 +160,14 @@ def test():
         print("In attesa del riepilogo con le statistiche di fine partita")
         time.sleep(0.1)
 
+    print("Clicco su 'Gioca Ancora'")
     LeagueOfLegends.click(pyautogui.locateCenterOnScreen("models/Pulsante_GiocaAncora.png", confidence=0.9))
-    return 
-
-
-
-class LeagueOfLegends(object):
-    @staticmethod
-    def click(coordinates=None, button="left"):
-        """ Forces a click inside the client
-        """
-        pyautogui.moveTo(coordinates, duration=1.0, tween=pyautogui.easeOutQuad)
-        pyautogui.sleep(0.5)
-        pyautogui.mouseDown(button=button); 
-        pyautogui.sleep(0.2)
-        pyautogui.mouseUp(button=button)
+    
+    return True
 
 
 if __name__ == "__main__":
     leagueWindow = pyautogui.getWindowsWithTitle("League of Legends")
-    # leagueWindow = pyautogui.getWindowsWithTitle("League of Legends (TM) Client")
     originalWindow = None
    
     if not leagueWindow:
@@ -165,7 +181,29 @@ if __name__ == "__main__":
         leagueWindow[0].activate()
         time.sleep(2)
 
-    test()
+    # print(pyautogui.KEYBOARD_KEYS)
+
+    # while True:
+    #     print("Carosello    : ", pyautogui.locateOnScreen("models/InGame_TurnoCaroselloCampioni.png", confidence=0.9))
+    #     print("PVE (Minions): ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Minions.png", confidence=0.9))
+    #     print("PVE (Krugs)  : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Krugs.png", confidence=0.9))
+    #     print("PVE (Lupi)   : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Lupi.png", confidence=0.9))
+    #     print("PVP          : ", pyautogui.locateOnScreen("models/InGame_TurnoPVP.png", confidence=0.9))
+    #     print()
+    #     time.sleep(30)
+        
+    # print(len(list(pyautogui.locateAllOnScreen("models/TFT_CapsuleGrigie.png", confidence=0.7))))
+    # for capsula in pyautogui.locateAllOnScreen("models/TFT_CapsuleBlu.png", confidence=0.7):
+    #     print(capsula)
+    #     coords = pyautogui.center(capsula)
+
+    #     # pyautogui.moveTo(coords, duration=1.0, tween=pyautogui.easeOutQuad)
+    #     # time.sleep(0.5)
+
+    # pyautogui.click()
+    
+    while True:
+        test()
 
     # if originalWindow:
     #     originalWindow.activate()
