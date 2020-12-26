@@ -28,7 +28,7 @@ def test():
         time.sleep(2)
 
 
-    if not pyautogui.locateOnScreen("models/Pulsante_InGame_Players.png", confidence=0.9):
+    if not pyautogui.locateOnScreen("models/Pulsante_InGame_Players.png", confidence=0.7):
         print("Non sei in game")
 
         print("\nCerco pulsante 'Gioca'")
@@ -112,7 +112,10 @@ def test():
 
     # Ogni 2 minuti cerco di arrendermi
     while True:
-        pulsante_impostazioni = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Impostazioni.png", confidence=0.8)
+        pulsante_impostazioni = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Impostazioni.png", confidence=0.7)
+        if not pulsante_impostazioni:
+            print("Non trovo pulsante impostazioni")
+            continue
         LeagueOfLegends.click(pulsante_impostazioni)
 
         while not pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Annulla.png", confidence=0.9): 
@@ -146,6 +149,15 @@ def test():
         print("Aspetto 60 secondi...")
         time.sleep(60)
     
+    # while pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Impostazioni.png", confidence=0.7):
+    #     print("Carosello    : ", pyautogui.locateOnScreen("models/InGame_TurnoCaroselloCampioni.png", confidence=0.9))
+    #     print("PVE (Minions): ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Minions.png", confidence=0.9))
+    #     print("PVE (Krugs)  : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Krugs.png", confidence=0.9))
+    #     print("PVE (Lupi)   : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Lupi.png", confidence=0.9))
+    #     print("PVP          : ", pyautogui.locateOnScreen("models/InGame_TurnoPVP.png", confidence=0.9))
+    #     print()
+    #     time.sleep(30)
+        
     time.sleep(10)
     
     # Clicco su OK quando ricevo missioni (se le trovo)
