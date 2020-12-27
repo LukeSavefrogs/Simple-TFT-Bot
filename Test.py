@@ -236,8 +236,7 @@ if __name__ == "__main__":
 
     # pyautogui.click()
     
-
-    if singleGame:
-        while True: playGame(surrend=True)
-    else:
-        playGame()
+    while True: 
+        playGame(surrend=True)
+        
+        if singleGame: break
