@@ -2,6 +2,8 @@ import pyautogui
 import time
 import sys
 
+class CodeTimeout(Exception):
+    pass
 
 
 class LeagueOfLegends(object):
@@ -17,7 +19,7 @@ class LeagueOfLegends(object):
 
 
 
-def test():  
+def test(surrend=True):
     print("\nControllo se sei dentro un gruppo: ")
 
     if pyautogui.locateOnScreen("models/Pulsante_GruppoOn.png", confidence=0.9) or pyautogui.locateOnScreen("models/Pulsante_GruppoOff.png", confidence=0.9):
@@ -111,52 +113,70 @@ def test():
 
 
     # Ogni 2 minuti cerco di arrendermi
-    while True:
-        pulsante_impostazioni = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Impostazioni.png", confidence=0.7)
-        if not pulsante_impostazioni:
-            print("Non trovo pulsante impostazioni")
-            continue
-        LeagueOfLegends.click(pulsante_impostazioni)
+    if surrend:
+        while True:
+            pulsante_impostazioni = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Impostazioni.png", confidence=0.7)
+            if not pulsante_impostazioni:
+                print("Non trovo pulsante impostazioni")
+                continue
 
-        while not pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Annulla.png", confidence=0.9): 
-            print("In attesa di Annulla")
-            time.sleep(0.1)
+            LeagueOfLegends.click(pulsante_impostazioni)
 
-        can_surrend = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_ResaOn.png", confidence=0.9)
-        print("ON: ", pyautogui.locateCenterOnScreen("models/Pulsante_InGame_ResaOn.png", confidence=0.9))
-        print("OFF: ", pyautogui.locateCenterOnScreen("models/Pulsante_InGame_ResaOff.png", confidence=0.9))
+            # Se non riesce ad aprire le Impostazioni va in Timeout e continua
+            try: 
+                time_before_settings = int(time.time())
+                while not pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Annulla.png", confidence=0.7): 
+                    print("In attesa di Annulla")
+                    sec_timeout = int(time.time()) - time_before_settings
+                    if sec_timeout > 10: 
+                        print ("Timeout: In attesa di Annulla")
+                        raise CodeTimeout()
+                    
+                    time.sleep(0.1)
+            except CodeTimeout:
+                print ("Timeout - Continuo")
+
+                continue
+
+            
+            # Controlla se è possibile arrendersi
+            can_surrend = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_ResaOn.png", confidence=0.9)
+            print("ON: ", pyautogui.locateCenterOnScreen("models/Pulsante_InGame_ResaOn.png", confidence=0.9))
+            print("OFF: ", pyautogui.locateCenterOnScreen("models/Pulsante_InGame_ResaOff.png", confidence=0.9))
 
 
-        if can_surrend: 
-            LeagueOfLegends.click(can_surrend)
-            pyautogui.screenshot('Surrend_Round.png')
+            if can_surrend: 
+                LeagueOfLegends.click(can_surrend)
+                pyautogui.screenshot('Surrend_Round.png')
 
-            while not pyautogui.locateCenterOnScreen("models/Dialog_IngameSurrend.png", confidence=0.9): 
-                print("In attesa del menu di arresa")
-                time.sleep(0.1)
+                while not pyautogui.locateCenterOnScreen("models/Dialog_IngameSurrend.png", confidence=0.9): 
+                    print("In attesa del menu di arresa")
+                    time.sleep(0.1)
 
 
-            print("Mi arrendo!")
-            LeagueOfLegends.click(pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Resa_Conferma.png", confidence=0.9))
-            print("Arreso!")
+                print("Mi arrendo!")
+                LeagueOfLegends.click(pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Resa_Conferma.png", confidence=0.9))
+                print("Arreso!")
 
-            break
+                break
 
-        # Se non posso arrendermi clicco su Annulla
-        pulsante_annulla = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Annulla.png", confidence=0.9)
-        LeagueOfLegends.click(pulsante_annulla)
+            # Se non posso arrendermi clicco su Annulla
+            pulsante_annulla = pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Annulla.png", confidence=0.9)
+            LeagueOfLegends.click(pulsante_annulla)
 
-        print("Aspetto 60 secondi...")
-        time.sleep(60)
-    
-    # while pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Impostazioni.png", confidence=0.7):
-    #     print("Carosello    : ", pyautogui.locateOnScreen("models/InGame_TurnoCaroselloCampioni.png", confidence=0.9))
-    #     print("PVE (Minions): ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Minions.png", confidence=0.9))
-    #     print("PVE (Krugs)  : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Krugs.png", confidence=0.9))
-    #     print("PVE (Lupi)   : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Lupi.png", confidence=0.9))
-    #     print("PVP          : ", pyautogui.locateOnScreen("models/InGame_TurnoPVP.png", confidence=0.9))
-    #     print()
-    #     time.sleep(30)
+            print("Aspetto 60 secondi...")
+            time.sleep(60)
+        
+    else:
+        while pyautogui.locateCenterOnScreen("models/Pulsante_InGame_Impostazioni.png", confidence=0.7):
+            print("Carosello    : ", pyautogui.locateOnScreen("models/InGame_TurnoCaroselloCampioni.png", confidence=0.9))
+            print("PVE (Minions): ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Minions.png", confidence=0.9))
+            print("PVE (Krugs)  : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Krugs.png", confidence=0.9))
+            print("PVE (Lupi)   : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Lupi.png", confidence=0.9))
+            print("PVP          : ", pyautogui.locateOnScreen("models/InGame_TurnoPVP.png", confidence=0.9))
+            print()
+
+            time.sleep(30)
         
     time.sleep(10)
     
@@ -180,30 +200,21 @@ def test():
 
 if __name__ == "__main__":
     leagueWindow = pyautogui.getWindowsWithTitle("League of Legends")
-    originalWindow = None
-   
+    singleGame = True
+
+    # Se LoL non è aperto, esce
     if not leagueWindow:
         print("Errore - LoL non aperto")
         sys.exit(1)
 
+    # Porta 'League of Legends' in primo piano (anche se minimizzato) 
     if not leagueWindow[0].isActive:
         print("Porto LoL in primo piano..")
-        originalWindow = pyautogui.getActiveWindow()
-
         leagueWindow[0].activate()
         time.sleep(2)
 
     # print(pyautogui.KEYBOARD_KEYS)
 
-    # while True:
-    #     print("Carosello    : ", pyautogui.locateOnScreen("models/InGame_TurnoCaroselloCampioni.png", confidence=0.9))
-    #     print("PVE (Minions): ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Minions.png", confidence=0.9))
-    #     print("PVE (Krugs)  : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Krugs.png", confidence=0.9))
-    #     print("PVE (Lupi)   : ", pyautogui.locateOnScreen("models/InGame_TurnoPVE-Lupi.png", confidence=0.9))
-    #     print("PVP          : ", pyautogui.locateOnScreen("models/InGame_TurnoPVP.png", confidence=0.9))
-    #     print()
-    #     time.sleep(30)
-        
     # print(len(list(pyautogui.locateAllOnScreen("models/TFT_CapsuleGrigie.png", confidence=0.7))))
     # for capsula in pyautogui.locateAllOnScreen("models/TFT_CapsuleBlu.png", confidence=0.7):
     #     print(capsula)
@@ -214,8 +225,8 @@ if __name__ == "__main__":
 
     # pyautogui.click()
     
-    while True:
-        test()
 
-    # if originalWindow:
-    #     originalWindow.activate()
+    if singleGame:
+        while True: test()
+    else:
+        test()
