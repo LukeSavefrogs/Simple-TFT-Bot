@@ -19,7 +19,18 @@ class LeagueOfLegends(object):
 
 
 
-def test(surrend=True):
+def playGame(surrend=True):
+    """Plays a game
+
+    Args:
+        surrend (bool, optional): Whether to surrend as soon as possible. Defaults to True.
+
+    Raises:
+        CodeTimeout: [description]
+
+    Returns:
+        bool: If succeed
+    """
     print("\nControllo se sei dentro un gruppo: ")
 
     if pyautogui.locateOnScreen("models/Pulsante_GruppoOn.png", confidence=0.9) or pyautogui.locateOnScreen("models/Pulsante_GruppoOff.png", confidence=0.9):
@@ -200,7 +211,7 @@ def test(surrend=True):
 
 if __name__ == "__main__":
     leagueWindow = pyautogui.getWindowsWithTitle("League of Legends")
-    singleGame = True
+    singleGame = False
 
     # Se LoL non è aperto, esce
     if not leagueWindow:
@@ -227,6 +238,6 @@ if __name__ == "__main__":
     
 
     if singleGame:
-        while True: test()
+        while True: playGame(surrend=True)
     else:
-        test()
+        playGame()
